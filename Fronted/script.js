@@ -52,7 +52,7 @@ function canvasApp() {
 	var randAccelX, randAccelY, randAccelZ;
 	var gravity;
 	var rgbString;
-	//we are defining a lot of variables used in the screen update functions globally so that they don't have to be redefined every frame.
+	
 	var p;
 	var outsideTest;
 	var nextParticle;
