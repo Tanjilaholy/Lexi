@@ -1,7 +1,8 @@
 window.addEventListener("load", windowLoadHandler, false);
 var sphereRad = 140;
 var radius_sp = 1;
-//for debug messages
+
+
 var Debugger = function () { };
 Debugger.log = function (message) {
 	try {
@@ -51,7 +52,7 @@ function canvasApp() {
 	var randAccelX, randAccelY, randAccelZ;
 	var gravity;
 	var rgbString;
-	//we are defining a lot of variables used in the screen update functions globally so that they don't have to be redefined every frame.
+	
 	var p;
 	var outsideTest;
 	var nextParticle;
@@ -65,7 +66,7 @@ function canvasApp() {
 
 	init();
 
-	// eel.expose(init)
+	
 	function init() {
 		wait = 1;
 		count = wait - 1;
@@ -84,17 +85,17 @@ function canvasApp() {
 
 		fLen = 320; //represents the distance from the viewer to z=0 depth.
 
-		//projection center coordinates sets location of origin
+		// location of origin
 		projCenterX = displayWidth / 2;
 		projCenterY = displayHeight / 2;
 
-		//we will not draw coordinates if they have too large of a z-coordinate (which means they are very close to the observer).
+		
 		zMax = fLen - 2;
 
 		particleList = {};
 		recycleBin = {};
 
-		//random acceleration factors - causes some random motion
+		
 		randAccelX = 0.1;
 		randAccelY = 0.1;
 		randAccelZ = 0.1;
@@ -107,7 +108,7 @@ function canvasApp() {
 		sphereCenterY = 0;
 		sphereCenterZ = -3 - sphereRad;
 
-		//alpha values will lessen as particles move further back, causing depth-based darkening:
+		
 		zeroAlphaDepth = -750;
 
 		turnSpeed = 2 * Math.PI / 1200; //the sphere will rotate at this speed (one complete rotation every 1600 frames).
@@ -117,7 +118,7 @@ function canvasApp() {
 	}
 
 	function onTimer() {
-		//if enough time has elapsed, we will add new particles.		
+				
 		count++;
 		if (count >= wait) {
 
@@ -129,12 +130,10 @@ function canvasApp() {
 				y0 = sphereRad * Math.sin(phi) * Math.sin(theta);
 				z0 = sphereRad * Math.cos(phi);
 
-				//We use the addParticle function to add a new particle. The parameters set the position and velocity components.
-				//Note that the velocity parameters will cause the particle to initially fly outwards away from the sphere center (after
-				//it becomes unstuck).
+				
 				var p = addParticle(x0, sphereCenterY + y0, sphereCenterZ + z0, 0.002 * x0, 0.002 * y0, 0.002 * z0);
 
-				//we set some "envelope" parameters which will control the evolving alpha of the particles.
+				
 				p.attack = 50;
 				p.hold = 50;
 				p.decay = 100;
@@ -142,7 +141,7 @@ function canvasApp() {
 				p.holdValue = particleAlpha;
 				p.lastValue = 0;
 
-				//the particle will be stuck in one place until this time has elapsed:
+				
 				p.stuckTime = 90 + Math.random() * 20;
 
 				p.accelX = 0;
@@ -151,7 +150,7 @@ function canvasApp() {
 			}
 		}
 
-		//update viewing angle
+		
 		turnAngle = (turnAngle + turnSpeed) % (2 * Math.PI);
 		sinAngle = Math.sin(turnAngle);
 		cosAngle = Math.cos(turnAngle);
@@ -160,16 +159,16 @@ function canvasApp() {
 		context.fillStyle = "#000000";
 		context.fillRect(0, 0, displayWidth, displayHeight);
 
-		//update and draw particles
+		
 		p = particleList.first;
 		while (p != null) {
-			//before list is altered record next particle
+			
 			nextParticle = p.next;
 
 			//update age
 			p.age++;
 
-			//if the particle is past its "stuck" time, it will begin to move.
+			
 			if (p.age > p.stuckTime) {
 				p.velX += p.accelX + randAccelX * (Math.random() * 2 - 1);
 				p.velY += p.accelY + randAccelY * (Math.random() * 2 - 1);
@@ -180,19 +179,14 @@ function canvasApp() {
 				p.z += p.velZ;
 			}
 
-			/*
-			We are doing two things here to calculate display coordinates.
-			The whole display is being rotated around a vertical axis, so we first calculate rotated coordinates for
-			x and z (but the y coordinate will not change).
-			Then, we take the new coordinates (rotX, y, rotZ), and project these onto the 2D view plane.
-			*/
+			
 			rotX = cosAngle * p.x + sinAngle * (p.z - sphereCenterZ);
 			rotZ = -sinAngle * p.x + cosAngle * (p.z - sphereCenterZ) + sphereCenterZ;
 			m = radius_sp * fLen / (fLen - rotZ);
 			p.projX = rotX * m + projCenterX;
 			p.projY = p.y * m + projCenterY;
 
-			//update alpha according to envelope parameters.
+			
 			if (p.age < p.attack + p.hold + p.decay) {
 				if (p.age < p.attack) {
 					p.alpha = (p.holdValue - p.initValue) / p.attack * p.age + p.initValue;
@@ -208,7 +202,7 @@ function canvasApp() {
 				p.dead = true;
 			}
 
-			//see if the particle is still within the viewable range.
+			
 			if ((p.projX > displayWidth) || (p.projX < 0) || (p.projY < 0) || (p.projY > displayHeight) || (rotZ > zMax)) {
 				outsideTest = true;
 			}
